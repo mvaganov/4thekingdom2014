@@ -6,16 +6,42 @@ public class GameWorld : MonoBehaviour {
 
 	static private GameWorld gw;
 
-	static GameWorld GetGlobal() {
+	public static GameWorld GetGlobal() {
+		if(gw == null) {
+			Object[] objects = Resources.FindObjectsOfTypeAll(typeof(GameObject));
+			for (int i = 0; gw == null && i < objects.Length; ++i) {
+				if (objects[i] is GameObject) {
+					GameObject go = (GameObject)objects[i];
+					gw = go.GetComponent<GameWorld>();
+				}
+			}
+			if (gw == null) {
+				GameObject gameWorld = new GameObject("gameworld (auto generated)");
+				gw = gameWorld.AddComponent<GameWorld>();
+			}
+		}
 		return gw;
 	}
 
+	public GameObject prefab_textBubble;
+
 	public GameObject prefab_agent;
+	public enum Needs { heart, money, sun};//friendship, food, healthcare, education, job, money, purpose, brokenheart };
+	public GameObject[] prefab_needs = new GameObject[0];
+
+	private static int NEED_TYPES_COUNT = 0;
+	public Needs GenerateRandomNeed() {
+		if(NEED_TYPES_COUNT == 0) {
+			NEED_TYPES_COUNT = System.Enum.GetNames (typeof(Needs)).Length;
+		}
+		return (Needs)Random.Range (0, NEED_TYPES_COUNT);
+	}
+
 	public int agentGenerationCount = 10;
 
 	Vector2 min, max;
 
-	public List<Agent> agents;
+	public List<Agent> agents = new List<Agent>();
 
 	public Vector2 randomPosition() {
 		return new Vector2 (Random.Range (min.x, max.x), Random.Range (min.y, max.y));
@@ -40,7 +66,7 @@ public class GameWorld : MonoBehaviour {
 		for(int i = 0; i < agentGenerationCount; ++i) {
 			Agent a = CreateAgent();
 			agents.Add(a);
-			a.transform.parent = this.gameObject.transform;
+//			a.transform.parent = this.gameObject.transform;
 		}
 	}
 	
