@@ -7,12 +7,18 @@ public class Agent : MonoBehaviour {
 
 	public Proximity prox;
 
-	public float wanderTimer;
+	float wanderCooldown;
 	public float wanderDelay = 5;
 
 	public float maxSteering = 1;
 
 	public Vector2 steering; // acceleration force
+
+	public bool showNeeds;
+
+	public enum Needs { friendship, food, healthcare, education, job, money, purpose, brokenheart };
+
+	public Needs myNeed;
 
 	// Use this for initialization
 	void Start () {
@@ -24,17 +30,17 @@ public class Agent : MonoBehaviour {
 		do {
 			randomUnitVector = new Vector2(Random.Range(-1f, 1f), Random.Range(-1f, 1f));
 		} while(randomUnitVector == Vector2.zero);
-		return randomUnitVector;
+		return randomUnitVector.normalized;
 	}
 	
 	// Update is called once per frame
 	void Update () {
 		// wander code
-		wanderTimer -= Time.deltaTime;
-		if(wanderTimer <= 0) {
+		wanderCooldown -= Time.deltaTime;
+		if(wanderCooldown <= 0) {
 			steering = RandomUnitVector();
 			steering *= maxSteering;
-			wanderTimer = wanderDelay;
+			wanderCooldown = wanderDelay;
 		}
 
 		// general steering behavior code
