@@ -11,6 +11,7 @@ public class Agent : MonoBehaviour {
 	public float wanderDelay = 5;
 
 	public float maxSteering = 1;
+	public float maxVelocity = 1;
 
 	public Vector2 steering; // acceleration force
 
@@ -18,6 +19,8 @@ public class Agent : MonoBehaviour {
 	bool mustShowNeeds = false;
 
 	public Vector2 userTarget;
+
+	private GameObject velocityLine, steeringLine;
 
 	public bool IsShowingNeeds() { return needsDisplay.activeInHierarchy; }
 	public void SetShowingNeeds(bool showNeeds) {
@@ -89,6 +92,20 @@ public class Agent : MonoBehaviour {
 		}
 		// general steering behavior code
 		rigidbody2D.velocity = rigidbody2D.velocity + (steering * Time.deltaTime); // += won't work for properties
+		if(rigidbody2D.velocity != Vector2.zero) {
+			float currentSpeed = rigidbody2D.velocity.magnitude;
+			if(currentSpeed > maxVelocity) {
+				rigidbody2D.velocity = rigidbody2D.velocity.normalized * maxVelocity;
+			}
+		}
+		Vector3 p = transform.position;
+		Vector3 v = p + (Vector3)rigidbody2D.velocity;
+		Vector3 s = v + (Vector3)steering;
+		p.z = -3;
+		v.z = -3;
+		s.z = -3;
+		Lines.Make (ref velocityLine, Color.green, p, v, .1f, .1f);
+		Lines.Make (ref steeringLine, Color.red, v, s, .05f, .05f);
 	}
 
 	void OnCollisionEnter2D(Collision2D other) {
