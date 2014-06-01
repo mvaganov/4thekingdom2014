@@ -16,6 +16,8 @@ public class Agent : MonoBehaviour {
 	public GameObject needsDisplay;
 	bool mustShowNeeds = false;
 
+	List<Agent> flock; // TODO when agents meet, they add each other to the flock, and begin flocking behavior
+
 	public Vector2 userTarget;
 
 	private GameObject velocityLine, steeringLine;
