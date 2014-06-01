@@ -9,7 +9,7 @@ public class Proximity : MonoBehaviour {
 
 	public List<Agent> nearbyAgents = new List<Agent>();
 
-	GameObject test;
+//	GameObject test;
 
 	public Agent GetOwner() {
 		if(owner == null) {
@@ -32,19 +32,46 @@ public class Proximity : MonoBehaviour {
 		}
 		return GameWorld.Needs.NONE;
 	}
+	// TODO move this to the Agent some time
+	public Agent.Attention FindAttention(Agent self, Agent a) {
+		for(int i = 0; i < self.attention.Count; ++i) {
+			if(self.attention[i].focus == a) {
+				return self.attention[i];
+			}
+		}
+		return null;
+	}
+
+	void IsBeingIntroducedBy(Agent introducer, Agent self, Agent other) {
+		// TODO move this into the Agent at some point
+		if(introducer && IsAgentSharingNeeds(self, other) != GameWorld.Needs.NONE) {
+			Agent.Attention atMe = FindAttention(introducer, self);
+			Agent.Attention atHim = FindAttention(introducer, other);
+			if(atMe != null && atHim != null) {
+				self.flock.Add(other);
+				other.flock.Add (self);
+//				other.renderer.material.color = Color.red;
+//				self.renderer.material.color = Color.red;
+			}
+		}
+	}
 
 	void OnTriggerEnter2D(Collider2D other)
 	{
 		Agent a = other.GetComponent<Agent> ();
 		if(a) {
-			Lines.Make(ref test, Color.magenta, transform.position, a.transform.position, 0.1f, 0.1f);
+			Agent self = GetOwner();
+//			Lines.Make(ref test, Color.magenta, transform.position, a.transform.position, 0.1f, 0.1f);
 			if(a.userControlled) {
 				userInProximity = a;
-				GetOwner().SetShowingNeeds(true);
-			} else {
-
+				self.SetShowingNeeds(true);
+//				if(self.renderer.material.color != Color.red)
+//					self.renderer.material.color = Color.cyan;
 			}
 			nearbyAgents.Add(a);
+			for(int i = 0; i < nearbyAgents.Count; ++i) {
+				IsBeingIntroducedBy(userInProximity, self, nearbyAgents[i]);
+			}
 		}
 	}
 
@@ -52,9 +79,15 @@ public class Proximity : MonoBehaviour {
 	{
 		Agent a = other.GetComponent<Agent> ();
 		if(a) {
+			Agent self = GetOwner();
 			if(a.userControlled) {
 				userInProximity = null;
-				GetOwner().SetShowingNeeds(false);
+				self.SetShowingNeeds(false);
+//				if(self.renderer.material.color != Color.red)
+//					self.renderer.material.color = Color.white;
+			}
+			for(int i = 0; i < nearbyAgents.Count; ++i) {
+				IsBeingIntroducedBy(userInProximity, self, nearbyAgents[i]);
 			}
 			nearbyAgents.Remove(a);
 		}
