@@ -113,6 +113,21 @@ public class Agent : MonoBehaviour {
 			WanderBehavior();
 		} else if(flock.Count > 0) {
 			// insert flock behavior here
+			int numPeers = 0;
+			int numCrowding = 0;
+			Vector3 groupCenter = Vector3.zero;
+			for (int i = 0; i < flock.Count; i++) {
+				Agent a = flock[i];
+				if (a != this) {
+					groupCenter += a.transform.position;
+					numPeers++;
+				}
+			}
+			//Vector2 targetLocation = this.transform.position;
+			if (numPeers > 0) {
+				groupCenter = groupCenter / numPeers;
+				SteerAt (groupCenter, 0.5f);
+			}
 		} else {
 			if(Input.GetMouseButtonDown(0)) {
 				UserClick();
