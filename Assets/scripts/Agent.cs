@@ -123,8 +123,9 @@ public class Agent : MonoBehaviour {
 //			Debug.Log ("FLOCKING!");
 			// insert flock behavior here
 			int numPeers = 1;
-			int numCrowding = 0;
-			Vector3 groupCenter = transform.position;//Vector3.zero;
+			int numCrowding = 1;
+			Vector3 groupCenter = transform.position;
+			Vector3 crowdingCenter = transform.position;
 			Vector2 averageSteering = steering;
 			for (int i = 0; i < flock.Count; i++) {
 				Agent a = flock[i];
@@ -132,14 +133,25 @@ public class Agent : MonoBehaviour {
 					groupCenter += a.transform.position;
 					averageSteering += a.steering;
 					numPeers++;
+					if (Vector3.Distance (transform.position, a.transform.position) < flockRepelRadius) {
+						crowdingCenter += a.transform.position;
+						numCrowding++;
+					}
 				}
 			}
-			//Vector2 targetLocation = this.transform.position;
-			if (numPeers > 0) {
+
+			if (numPeers > 1) {
 				groupCenter = groupCenter / numPeers;
 				averageSteering = averageSteering / numPeers;
-				SteerAt (groupCenter, 0.6f); // sets steering
+				SteerAt (groupCenter, 0.5f); // sets steering
 				SteerAt (transform.position + (Vector3)averageSteering, 0.3f);
+				if (numCrowding > 1) {
+					crowdingCenter = crowdingCenter / numCrowding;
+					Vector3 toCrowd = crowdingCenter - transform.position;
+					Vector3 fleeTarget = transform.position - (2 * toCrowd);
+					fleeTarget += 0.1f * (Vector3)RandomUnitVector();
+					SteerAt(fleeTarget, 0.7f);
+				}
 			}
 //			Vector3 delta = groupCenter - transform.position;
 //			Debug.Log("-------------"+delta);
