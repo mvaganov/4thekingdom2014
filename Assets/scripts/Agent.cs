@@ -148,11 +148,27 @@ public class Agent : MonoBehaviour {
 			}
 			Vector2 targetVelocity = userTarget - (Vector2)transform.position;
 			if(targetVelocity != Vector2.zero) {
-				targetVelocity.Normalize();
-				targetVelocity *= maxSteering;
-				Vector2 requiredAcceleration = targetVelocity - rigidbody2D.velocity;
-				requiredAcceleration.Normalize();
-				steering = requiredAcceleration * maxSteering;
+				float movementAtThisMoment = steering.magnitude*Time.deltaTime;
+				float distanceFromTarget = targetVelocity.magnitude - movementAtThisMoment;
+				float speed = rigidbody2D.velocity.magnitude;
+				float brakeDistanceNeeded = (speed*speed)/(2*maxSteering);
+				if(distanceFromTarget <= brakeDistanceNeeded) {
+					if(speed > maxSteering) {
+						targetVelocity = targetVelocity.normalized * (speed-maxSteering);
+					} else {
+						targetVelocity = Vector2.zero;
+					}
+				} else {
+					if(targetVelocity.magnitude > maxVelocity) {
+						targetVelocity = targetVelocity.normalized* maxVelocity;
+					}
+				}
+//				targetVelocity.Normalize();
+//				targetVelocity *= maxSteering;
+//				Vector2 requiredAcceleration = targetVelocity - rigidbody2D.velocity;
+//				requiredAcceleration.Normalize();
+//				steering = requiredAcceleration * maxSteering;
+				steering = targetVelocity - rigidbody2D.velocity;
 			} else {
 				steering = Vector2.zero;
 			}

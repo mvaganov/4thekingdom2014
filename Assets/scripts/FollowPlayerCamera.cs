@@ -10,6 +10,8 @@ public class FollowPlayerCamera : MonoBehaviour {
 
 	static FollowPlayerCamera s_playerCamera;
 
+	public GUISkin guiskin;
+
 	public static FollowPlayerCamera GetGlobal() {
 		if(s_playerCamera == null) {
 			Object[] objects = Resources.FindObjectsOfTypeAll(typeof(GameObject));
@@ -42,7 +44,7 @@ public class FollowPlayerCamera : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		CalcMinMax ();
-		Debug.Log (min + "  " + max);
+//		Debug.Log (min + "  " + max);
 	}
 
 	GameObject diagonal;
@@ -78,5 +80,18 @@ public class FollowPlayerCamera : MonoBehaviour {
 			rigidbody2D.velocity += (Vector2)steering * Time.deltaTime;
 		}
 
+	}
+
+	void OnGUI () {
+		GUI.skin = guiskin;
+		GUILayout.BeginArea (new Rect (0, 0, Screen.width, Screen.height));
+//		GUILayout.BeginHorizontal ();
+//		GUILayout.BeginVertical ();
+		GUILayout.Box ("score: ");
+		Agent a = player.GetComponent<Agent> ();
+		GUILayout.Label (""+a.attention.Count);
+//		GUILayout.EndVertical ();
+//		GUILayout.EndHorizontal ();
+		GUILayout.EndArea ();
 	}
 }
