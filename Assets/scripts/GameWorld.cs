@@ -29,6 +29,8 @@ public class GameWorld : MonoBehaviour {
 	public enum Needs { NONE, heart, money};//, sun, book, exercise, dogcat};//friendship, food, healthcare, education, job, money, purpose, brokenheart };
 	public GameObject[] prefab_needs = new GameObject[0];
 
+	public SpriteData[] playerSprites;
+
 	public GameObject moveToken;
 
 	private static int NEED_TYPES_COUNT = 0;
@@ -56,6 +58,7 @@ public class GameWorld : MonoBehaviour {
 		if(a == null) {
 			throw new System.Exception("agent prefab must have an agent component");
 		}
+		a.spriteData = playerSprites [Random.Range (1, playerSprites.Length)];
 		return a;
 	}
 
@@ -74,6 +77,8 @@ public class GameWorld : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-	
+		if(Input.GetKeyDown(KeyCode.Escape)) {
+			Application.Quit();
+		}
 	}
 }
