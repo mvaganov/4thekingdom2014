@@ -1,14 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class Agent : MonoBehaviour {
 
 	public bool userControlled = false;
 
 	public Proximity prox;
-
-	float wanderCooldown;
-	public float wanderDelay = 5;
 
 	public float maxSteering = 1;
 	public float maxVelocity = 1;
@@ -21,6 +19,39 @@ public class Agent : MonoBehaviour {
 	public Vector2 userTarget;
 
 	private GameObject velocityLine, steeringLine;
+
+	public class Attention {
+		public Agent focus;
+		public float durationOfAttention;
+		public float maxDurationOfAttention = 5;
+		public float GetAttentionLeftAsPercent() {
+			if(durationOfAttention > maxDurationOfAttention) {
+				return 0;
+			}
+			return 1 - (durationOfAttention / maxDurationOfAttention);
+		}
+		public GameObject attentionLine;
+		public void Update(GameObject me) {
+			durationOfAttention += Time.deltaTime;
+			Vector3 start = me.transform.position, end = focus.transform.position;
+			start.z = -2;
+			end.z = -2;
+			Lines.Make (ref attentionLine, Color.white, start, end, 0.1f, 0.1f);
+		}
+	}
+
+	public Attention FindAttention(Agent a) {
+		for(int i = 0; i < attention.Count; ++i) {
+			if(attention[i].focus == a) {
+				return attention[i];
+			}
+		}
+		Attention att = new Attention ();
+		att.focus = a;
+		attention.Add (att);
+		return att;
+	}
+	public List<Attention> attention = new List<Attention>();
 
 	public bool IsShowingNeeds() { return needsDisplay.activeInHierarchy; }
 	public void SetShowingNeeds(bool showNeeds) {
@@ -62,22 +93,25 @@ public class Agent : MonoBehaviour {
 		} while(randomUnitVector == Vector2.zero);
 		return randomUnitVector.normalized;
 	}
+
+	float wanderCooldown;
+	public float wanderDelay = 5;	
+	public void WanderBehavior() {
+		wanderCooldown -= Time.deltaTime;
+		if(wanderCooldown <= 0) {
+			steering = RandomUnitVector();
+			steering *= maxSteering;
+			wanderCooldown = wanderDelay;
+		}
+	}
 	
 	// Update is called once per frame
 	void Update () {
 		if(!userControlled) {
-			// wander code
-			wanderCooldown -= Time.deltaTime;
-			if(wanderCooldown <= 0) {
-				steering = RandomUnitVector();
-				steering *= maxSteering;
-				wanderCooldown = wanderDelay;
-			}
+			WanderBehavior();
 		} else {
 			if(Input.GetMouseButtonDown(0)) {
-				Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-				userTarget.x = ray.origin.x; // if the camera angle ever changes, this code will break!
-				userTarget.y = ray.origin.y;
+				UserClick();
 			}
 			Vector2 targetVelocity = userTarget - (Vector2)transform.position;
 			if(targetVelocity != Vector2.zero) {
@@ -106,6 +140,42 @@ public class Agent : MonoBehaviour {
 		s.z = -3;
 		Lines.Make (ref velocityLine, Color.green, p, v, .1f, .1f);
 		Lines.Make (ref steeringLine, Color.red, v, s, .05f, .05f);
+
+		for(int i = 0; i < attention.Count; ++i) {
+			float attentionLeft = attention[i].GetAttentionLeftAsPercent();
+			if(attentionLeft > 0) {
+				attention[i].Update(gameObject);
+				attention[i].focus.SteerAt (transform.position, attentionLeft);
+			} else {
+				attention[i].focus = this;
+				attention[i].Update(gameObject);
+				attention.RemoveAt(i);
+				i--;
+			}
+		}
+	}
+
+	public void SteerAt(Vector3 position, float strength) {
+		Vector3 delta = position - transform.position;
+		delta.Normalize ();
+		delta *= maxSteering;
+		delta = Vector3.Lerp (steering, delta, strength);
+		steering = delta;
+	}
+
+	public void UserClick() {
+		Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+		userTarget.x = ray.origin.x; // if the camera angle ever changes, this code will break!
+		userTarget.y = ray.origin.y;
+		Collider2D[] hits = Physics2D.OverlapPointAll(userTarget);
+		if(hits.Length > 0) {
+			for(int i = 0; i < hits.Length; ++i) {
+				Agent a = hits[i].GetComponent<Agent>();
+				if(a != null){
+					FindAttention(a);
+				}
+			}
+		}
 	}
 
 	void OnCollisionEnter2D(Collision2D other) {
