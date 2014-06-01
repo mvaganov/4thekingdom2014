@@ -252,6 +252,7 @@ public class Agent : MonoBehaviour {
 				if(a != null){
 					FindAttention(a);
 					a.prox.CheckIntroduction();
+					PlaySound.Play(GameWorld.GetGlobal().connection, transform);
 				}
 			}
 		}

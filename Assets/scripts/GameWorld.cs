@@ -6,6 +6,8 @@ public class GameWorld : MonoBehaviour {
 
 	static private GameWorld gw;
 
+	public AudioClip connection, points;
+
 	public static GameWorld GetGlobal() {
 		if(gw == null) {
 			Object[] objects = Resources.FindObjectsOfTypeAll(typeof(GameObject));
@@ -43,10 +45,31 @@ public class GameWorld : MonoBehaviour {
 
 	public int agentGenerationCount = 10;
 
+	public GameObject youWinMessage;
+
 	Vector2 min, max;
 
 	public List<Agent> agents = new List<Agent>();
 
+	bool haveWon = false;
+	float explosionTimer = 0;
+
+	public int PeopleWithoutCommunity() {
+		int count = 0;
+		for(int i = 0; i < agents.Count; ++i) {
+			if(agents[i].flock.Count == 0)
+				count++;
+		}
+		return count;
+	}
+
+	public void WinCheck() {
+		if(PeopleWithoutCommunity() == 0) {
+			youWinMessage.SetActive(true);
+			haveWon = true;
+		}
+	}
+	
 	public Vector2 randomPosition() {
 		return new Vector2 (Random.Range (min.x, max.x), Random.Range (min.y, max.y));
 	}
@@ -64,6 +87,7 @@ public class GameWorld : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+		youWinMessage.SetActive(false);
 		gw = this;
 		BoxCollider2D box = GetComponent<BoxCollider2D> ();
 		min = box.center - box.size / 2;
@@ -79,6 +103,17 @@ public class GameWorld : MonoBehaviour {
 	void Update () {
 		if(Input.GetKeyDown(KeyCode.Escape)) {
 			Application.Quit();
+		}
+		if(haveWon) {
+			explosionTimer -= Time.deltaTime;
+			if(explosionTimer <= 0) {
+				int index = Random.Range(0, agents.Count);
+				Vector3 loc = agents[index].transform.position;
+				loc.z = -5;
+				scoreToken.transform.position = loc;
+				scoreToken.Emit (10);
+				explosionTimer += Random.Range(.1f, .2f);
+			}
 		}
 	}
 }

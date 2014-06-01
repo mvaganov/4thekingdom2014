@@ -70,12 +70,15 @@ public class Proximity : MonoBehaviour {
 					Vector3 v= other.transform.position;
 					v.z = -4;
 					gw.scoreToken.transform.position = v;
-					gw.scoreToken.Emit (1);
+					gw.scoreToken.Emit (10);
 
 					v = self.transform.position;
 					v.z = -4;
 					gw.scoreToken.transform.position = v;
-					gw.scoreToken.Emit (1);
+					gw.scoreToken.Emit (10);
+					PlaySound.Play(GameWorld.GetGlobal().points, transform);
+
+					gw.WinCheck();
 				}
 				// doing this would be bad for memory...
 				// and we'll addeach other's friends too!
