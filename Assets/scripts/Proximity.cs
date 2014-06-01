@@ -48,7 +48,7 @@ public class Proximity : MonoBehaviour {
 			Agent.Attention atMe = FindAttention(introducer, self);
 			Agent.Attention atHim = FindAttention(introducer, other);
 			if(atMe != null && atHim != null) {
-				Debug.Log("adding to flocks");
+//				Debug.Log("adding to flocks");
 				self.flock.Add(other);
 				other.flock.Add (self);
 //				other.renderer.material.color = Color.red;

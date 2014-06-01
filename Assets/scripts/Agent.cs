@@ -137,7 +137,7 @@ public class Agent : MonoBehaviour {
 				groupCenter = groupCenter / numPeers;
 				SteerAt (groupCenter, 0.5f); // sets steering
 			}
-			Vector3 delta = groupCenter - transform.position;
+//			Vector3 delta = groupCenter - transform.position;
 //			Debug.Log("-------------"+delta);
 			Lines.Make(ref flockArrow, Color.black, transform.position, groupCenter, .1f, 0);
 		} else if(!userControlled) {
@@ -172,7 +172,7 @@ public class Agent : MonoBehaviour {
 		v.z = -3;
 		s.z = -3;
 		Color moveColor = (flock.Count == 0) ? Color.green : Color.blue;
-		Lines.Make (ref velocityLine, moveColor, p, v, .1f, .1f);
+//		Lines.Make (ref velocityLine, moveColor, p, v, .1f, .1f);
 //		Lines.Make (ref steeringLine, Color.red, v, s, .05f, .05f);
 
 		for(int i = 0; i < attention.Count; ++i) {
