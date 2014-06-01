@@ -224,8 +224,7 @@ public class Agent : MonoBehaviour {
 		Vector3 delta = position - transform.position;
 		delta.Normalize ();
 		delta *= maxSteering;
-		delta = Vector3.Lerp (steering, delta, strength);
-		steering = delta;
+		steering = Vector3.Lerp (steering, delta, strength);
 	}
 
 	public void UserClick() {
