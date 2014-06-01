@@ -172,8 +172,8 @@ public class Agent : MonoBehaviour {
 		v.z = -3;
 		s.z = -3;
 		Color moveColor = (flock.Count == 0) ? Color.green : Color.blue;
-//		Lines.Make (ref velocityLine, moveColor, p, v, .1f, .1f);
-//		Lines.Make (ref steeringLine, Color.red, v, s, .05f, .05f);
+		Lines.Make (ref velocityLine, moveColor, p, v, .1f, .1f);
+		Lines.Make (ref steeringLine, Color.red, v, s, .05f, .05f);
 
 		for(int i = 0; i < attention.Count; ++i) {
 			float attentionLeft = attention[i].GetAttentionLeftAsPercent();
