@@ -49,12 +49,34 @@ public class Proximity : MonoBehaviour {
 			Agent.Attention atHim = FindAttention(introducer, other);
 			if(atMe != null && atHim != null) {
 //				Debug.Log("adding to flocks");
-				if(!self.flock.Contains(other))
+				bool additionMade = false;
+				if(!self.flock.Contains(other)) {
 					self.flock.Add(other);
-				if(!other.flock.Contains(self))
+					additionMade = true;
+				}
+				if(!other.flock.Contains(self)){
 					other.flock.Add (self);
-				other.flock = self.flock;
-				introducer.score++;
+					additionMade = true;
+				}
+				if(other.flock.Count > self.flock.Count)
+					other.flock = self.flock;
+				else
+					self.flock = other.flock;
+
+				if(additionMade) {
+					introducer.score++;
+
+					GameWorld gw = GameWorld.GetGlobal();
+					Vector3 v= other.transform.position;
+					v.z = -4;
+					gw.scoreToken.transform.position = v;
+					gw.scoreToken.Emit (1);
+
+					v = self.transform.position;
+					v.z = -4;
+					gw.scoreToken.transform.position = v;
+					gw.scoreToken.Emit (1);
+				}
 				// doing this would be bad for memory...
 				// and we'll addeach other's friends too!
 //				if(other.flock.Count > 0)

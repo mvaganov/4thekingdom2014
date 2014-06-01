@@ -24,7 +24,6 @@ public class GameWorld : MonoBehaviour {
 	}
 
 	public GameObject prefab_textBubble;
-
 	public GameObject prefab_agent;
 	public enum Needs { NONE, heart, money, sun, book, exercise, dogcat};//friendship, food, healthcare, education, job, money, purpose, brokenheart };
 	public GameObject[] prefab_needs = new GameObject[0];
@@ -32,6 +31,7 @@ public class GameWorld : MonoBehaviour {
 	public SpriteData[] playerSprites;
 
 	public GameObject moveToken;
+	public ParticleSystem scoreToken;
 
 	private static int NEED_TYPES_COUNT = 0;
 	public Needs GenerateRandomNeed() {
