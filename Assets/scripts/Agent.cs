@@ -16,7 +16,7 @@ public class Agent : MonoBehaviour {
 	public GameObject needsDisplay;
 	bool mustShowNeeds = false;
 
-	List<Agent> flock = new List<Agent>(); // TODO when agents meet, they add each other to the flock, and begin flocking behavior
+	public List<Agent> flock = new List<Agent>(); // TODO when agents meet, they add each other to the flock, and begin flocking behavior
 
 	public Vector2 userTarget;
 
