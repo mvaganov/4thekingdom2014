@@ -17,10 +17,10 @@ public class Agent : MonoBehaviour {
 	bool mustShowNeeds = false;
 
 	public List<Agent> flock = new List<Agent>(); // TODO when agents meet, they add each other to the flock, and begin flocking behavior
-
+	public float flockRepelRadius = 2;
 	public Vector2 userTarget;
 
-	private GameObject velocityLine, steeringLine;
+	private GameObject velocityLine, steeringLine, flockCircle;
 
 	public SpriteRenderer spriteRenderer;
 	public SpriteData spriteData;
@@ -125,17 +125,21 @@ public class Agent : MonoBehaviour {
 			int numPeers = 1;
 			int numCrowding = 0;
 			Vector3 groupCenter = transform.position;//Vector3.zero;
+			Vector2 averageSteering = steering;
 			for (int i = 0; i < flock.Count; i++) {
 				Agent a = flock[i];
 				if (a != this) {
 					groupCenter += a.transform.position;
+					averageSteering += a.steering;
 					numPeers++;
 				}
 			}
 			//Vector2 targetLocation = this.transform.position;
 			if (numPeers > 0) {
 				groupCenter = groupCenter / numPeers;
-				SteerAt (groupCenter, 0.5f); // sets steering
+				averageSteering = averageSteering / numPeers;
+				SteerAt (groupCenter, 0.6f); // sets steering
+				SteerAt (transform.position + (Vector3)averageSteering, 0.3f);
 			}
 //			Vector3 delta = groupCenter - transform.position;
 //			Debug.Log("-------------"+delta);
@@ -190,6 +194,9 @@ public class Agent : MonoBehaviour {
 		Color moveColor = (flock.Count == 0) ? Color.green : Color.blue;
 		Lines.Make (ref velocityLine, moveColor, p, v, .1f, .1f);
 		Lines.Make (ref steeringLine, Color.red, v, s, .05f, .05f);
+		if(flock.Count > 0) {
+			Lines.MakeArc(ref flockCircle, Color.blue, transform.position, Vector3.forward, Vector3.right * flockRepelRadius, 360, 24, .1f, .1f);
+		}
 
 		for(int i = 0; i < attention.Count; ++i) {
 			float attentionLeft = attention[i].GetAttentionLeftAsPercent();
