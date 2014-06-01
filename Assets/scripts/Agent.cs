@@ -111,6 +111,8 @@ public class Agent : MonoBehaviour {
 	void Update () {
 		if(!userControlled) {
 			WanderBehavior();
+		} else if(flock.Count > 0) {
+			// insert flock behavior here
 		} else {
 			if(Input.GetMouseButtonDown(0)) {
 				UserClick();

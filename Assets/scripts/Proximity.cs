@@ -28,11 +28,9 @@ public class Proximity : MonoBehaviour {
 			Lines.Make(ref test, Color.magenta, transform.position, a.transform.position, 0.1f, 0.1f);
 			if(a.userControlled) {
 				userInProximity = a;
+				GetOwner().SetShowingNeeds(true);
 			}
 			nearbyAgents.Add(a);
-			if(GetOwner().userControlled) {
-				a.SetShowingNeeds(true);
-			}
 		}
 	}
 
@@ -42,11 +40,9 @@ public class Proximity : MonoBehaviour {
 		if(a) {
 			if(a.userControlled) {
 				userInProximity = null;
+				GetOwner().SetShowingNeeds(false);
 			}
 			nearbyAgents.Remove(a);
-			if(GetOwner().userControlled) {
-				a.SetShowingNeeds(false);
-			}
 		}
 	}
 }
