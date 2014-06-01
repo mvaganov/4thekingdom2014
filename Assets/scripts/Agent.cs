@@ -249,6 +249,7 @@ public class Agent : MonoBehaviour {
 				Agent a = hits[i].GetComponent<Agent>();
 				if(a != null){
 					FindAttention(a);
+					a.prox.CheckIntroduction();
 				}
 			}
 		}

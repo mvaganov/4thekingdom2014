@@ -80,14 +80,21 @@ public class Proximity : MonoBehaviour {
 //					self.renderer.material.color = Color.cyan;
 			}
 			nearbyAgents.Add(a);
-			if(!self.userControlled && userInProximity) {
-				for(int i = 0; i < nearbyAgents.Count; ++i) {
-					IsBeingIntroducedBy(userInProximity, self, nearbyAgents[i]);
-				}
-			}
+			CheckIntroduction(self);
 		}
 	}
 
+	public void CheckIntroduction() {
+		CheckIntroduction (GetOwner ());
+	}
+	void CheckIntroduction(Agent self) {
+		if(!self.userControlled && userInProximity) {
+			for(int i = 0; i < nearbyAgents.Count; ++i) {
+				IsBeingIntroducedBy(userInProximity, self, nearbyAgents[i]);
+			}
+		}
+	}
+	
 	void OnTriggerExit2D(Collider2D other)
 	{
 		Agent a = other.GetComponent<Agent> ();
@@ -99,11 +106,7 @@ public class Proximity : MonoBehaviour {
 //				if(self.renderer.material.color != Color.red)
 //					self.renderer.material.color = Color.white;
 			}
-			if(!self.userControlled && userInProximity) {
-				for(int i = 0; i < nearbyAgents.Count; ++i) {
-					IsBeingIntroducedBy(userInProximity, self, nearbyAgents[i]);
-				}
-			}
+			CheckIntroduction(self);
 			nearbyAgents.Remove(a);
 		}
 	}
