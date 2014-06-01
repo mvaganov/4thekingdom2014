@@ -240,6 +240,9 @@ public class Agent : MonoBehaviour {
 				}
 			}
 		}
+		ParticleSystem token = GameWorld.GetGlobal ().moveToken.GetComponent<ParticleSystem> ();
+		token.transform.position = userTarget;
+		token.Emit (2);
 	}
 
 	void OnCollisionEnter2D(Collision2D other) {

@@ -29,6 +29,8 @@ public class GameWorld : MonoBehaviour {
 	public enum Needs { NONE, heart, money};//, sun, book, exercise, dogcat};//friendship, food, healthcare, education, job, money, purpose, brokenheart };
 	public GameObject[] prefab_needs = new GameObject[0];
 
+	public GameObject moveToken;
+
 	private static int NEED_TYPES_COUNT = 0;
 	public Needs GenerateRandomNeed() {
 		if(NEED_TYPES_COUNT == 0) {
