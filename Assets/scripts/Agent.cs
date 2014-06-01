@@ -70,15 +70,20 @@ public class Agent : MonoBehaviour {
 		needsDisplay = (GameObject)Instantiate (gw.prefab_textBubble);
 		needsDisplay.transform.position = transform.position;
 		myNeed = new GameWorld.Needs[2];
-		myNeed[0] = gw.GenerateRandomNeed();
-		myNeed[1] = gw.GenerateRandomNeed();
+		if(userControlled) {
+			myNeed[0] = GameWorld.Needs.NONE;
+			myNeed[1] = GameWorld.Needs.NONE;
+		} else {
+			myNeed[0] = gw.GenerateRandomNeed();
+			myNeed[1] = gw.GenerateRandomNeed();
+		}
 		GameObject n0 = (GameObject)Instantiate (gw.prefab_needs[(int)myNeed[0]]);
 		GameObject n1 = (GameObject)Instantiate (gw.prefab_needs[(int)myNeed[1]]);
 		n0.transform.parent = needsDisplay.transform;
 		n0.transform.position = needsDisplay.transform.position + new Vector3 (-.2f, 0, -.1f);
 		n1.transform.parent = needsDisplay.transform;
 		n1.transform.position = needsDisplay.transform.position + new Vector3 (.2f, 0, -.2f);
-		needsDisplay.transform.position = needsDisplay.transform.position + new Vector3 (.75f, 1.5f, -2);
+		needsDisplay.transform.position = needsDisplay.transform.position + new Vector3 (.5f, 1f, -2);
 		needsDisplay.transform.parent = transform;
 		needsDisplay.SetActive (mustShowNeeds);
 	}
@@ -106,16 +111,15 @@ public class Agent : MonoBehaviour {
 			wanderCooldown = wanderDelay;
 		}
 	}
-	
+	GameObject flockArrow;
 	// Update is called once per frame
 	void Update () {
-		if(!userControlled) {
-			WanderBehavior();
-		} else if(flock.Count > 0) {
+		if(flock.Count > 0) {
+//			Debug.Log ("FLOCKING!");
 			// insert flock behavior here
-			int numPeers = 0;
+			int numPeers = 1;
 			int numCrowding = 0;
-			Vector3 groupCenter = Vector3.zero;
+			Vector3 groupCenter = transform.position;//Vector3.zero;
 			for (int i = 0; i < flock.Count; i++) {
 				Agent a = flock[i];
 				if (a != this) {
@@ -126,8 +130,13 @@ public class Agent : MonoBehaviour {
 			//Vector2 targetLocation = this.transform.position;
 			if (numPeers > 0) {
 				groupCenter = groupCenter / numPeers;
-				SteerAt (groupCenter, 0.5f);
+				SteerAt (groupCenter, 0.5f); // sets steering
 			}
+			Vector3 delta = groupCenter - transform.position;
+//			Debug.Log("-------------"+delta);
+			Lines.Make(ref flockArrow, Color.black, transform.position, groupCenter, .1f, 0);
+		} else if(!userControlled) {
+			WanderBehavior();
 		} else {
 			if(Input.GetMouseButtonDown(0)) {
 				UserClick();
