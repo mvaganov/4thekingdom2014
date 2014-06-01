@@ -26,7 +26,7 @@ public class GameWorld : MonoBehaviour {
 	public GameObject prefab_textBubble;
 
 	public GameObject prefab_agent;
-	public enum Needs { heart, money, sun};//friendship, food, healthcare, education, job, money, purpose, brokenheart };
+	public enum Needs { NONE, heart, money, sun};//friendship, food, healthcare, education, job, money, purpose, brokenheart };
 	public GameObject[] prefab_needs = new GameObject[0];
 
 	private static int NEED_TYPES_COUNT = 0;
@@ -34,7 +34,7 @@ public class GameWorld : MonoBehaviour {
 		if(NEED_TYPES_COUNT == 0) {
 			NEED_TYPES_COUNT = System.Enum.GetNames (typeof(Needs)).Length;
 		}
-		return (Needs)Random.Range (0, NEED_TYPES_COUNT);
+		return (Needs)Random.Range (1, NEED_TYPES_COUNT);
 	}
 
 	public int agentGenerationCount = 10;
