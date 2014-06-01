@@ -1,8 +1,23 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Lines {
-	
+public class Lines : MonoBehaviour {
+	public Material lineMaterial;
+	static Lines instance;
+
+	public static Lines GetGlobal() {
+		if(instance == null) {
+			Object[] objects = Resources.FindObjectsOfTypeAll(typeof(GameObject));
+			for (int i = 0; instance == null && i < objects.Length; ++i) {
+				if (objects[i] is GameObject) {
+					GameObject go = (GameObject)objects[i];
+					instance = go.GetComponent<Lines>();
+				}
+			}
+		}
+		return instance;
+	}
+
 	/// <summary>
 	/// Make the specified Line.
 	/// example usage:
@@ -70,12 +85,17 @@ public class Lines {
 	
 	public static void SetColor(LineRenderer lr, Color color)
 	{
-		const string colorShaderName = "Self-Illumin/Diffuse";
-		if(lr.material == null || lr.material.name != colorShaderName)
-		{
+		Material mat = GetGlobal ().lineMaterial;
+		if(mat == null) {
 			// Shader.Find won't export well! For most platforms, consider a
 			// reference passed through a global variable
-			lr.material = new Material(Shader.Find(colorShaderName));
+			const string colorShaderName = "Self-Illumin/Diffuse";
+			mat = new Material(Shader.Find(colorShaderName));
+			GetGlobal().lineMaterial = mat;
+		}
+		if(lr.material == null || lr.material.name != mat.name)
+		{
+			lr.material = mat;//Shader.Find(colorShaderName));
 		}
 		lr.material.color = color;
 	}
