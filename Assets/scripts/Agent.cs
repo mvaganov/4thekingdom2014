@@ -22,6 +22,10 @@ public class Agent : MonoBehaviour {
 
 	private GameObject velocityLine, steeringLine;
 
+	public SpriteRenderer spriteRenderer;
+	public SpriteData spriteData;
+	SpriteData.Instance sprite;
+
 	public class Attention {
 		public Agent focus;
 		public float durationOfAttention;
@@ -91,6 +95,7 @@ public class Agent : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		GenerateNeeds ();
+		sprite = spriteData.CreateInstance (spriteRenderer);
 	}
 
 	public static Vector2 RandomUnitVector() {
@@ -168,7 +173,7 @@ public class Agent : MonoBehaviour {
 		s.z = -3;
 		Color moveColor = (flock.Count == 0) ? Color.green : Color.blue;
 		Lines.Make (ref velocityLine, moveColor, p, v, .1f, .1f);
-		Lines.Make (ref steeringLine, Color.red, v, s, .05f, .05f);
+//		Lines.Make (ref steeringLine, Color.red, v, s, .05f, .05f);
 
 		for(int i = 0; i < attention.Count; ++i) {
 			float attentionLeft = attention[i].GetAttentionLeftAsPercent();
@@ -182,6 +187,14 @@ public class Agent : MonoBehaviour {
 				i--;
 			}
 		}
+		if(rigidbody2D.velocity.magnitude < 0.1) {
+			if(sprite.animation != 0)
+				sprite.SetAnimation(0);
+		} else {
+			if(sprite.animation != 1)
+				sprite.SetAnimation(1);
+		}
+		sprite.Update (Time.deltaTime);
 	}
 
 	public void SteerAt(Vector3 position, float strength) {
