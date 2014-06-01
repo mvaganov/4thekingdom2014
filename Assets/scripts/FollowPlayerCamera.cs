@@ -83,13 +83,13 @@ public class FollowPlayerCamera : MonoBehaviour {
 	}
 
 	void OnGUI () {
+		Agent a = player.GetComponent<Agent> ();
 		GUI.skin = guiskin;
 		GUILayout.BeginArea (new Rect (0, 0, Screen.width, Screen.height));
 //		GUILayout.BeginHorizontal ();
 		GUILayout.BeginVertical ();
-		GUILayout.Box ("score: ");
-		Agent a = player.GetComponent<Agent> ();
-		GUILayout.Label (""+a.attention.Count);
+		GUILayout.Box ("score: "+a.score);
+//		GUILayout.Label (""+a.attention.Count);
 		GUILayout.EndVertical ();
 //		GUILayout.EndHorizontal ();
 		GUILayout.EndArea ();

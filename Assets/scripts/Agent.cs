@@ -3,10 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class Agent : MonoBehaviour {
-
+	public static bool showSteeringLines = false;
 	public bool userControlled = false;
 
 	public Proximity prox;
+	public int score = 0;
 
 	public float maxSteering = 1;
 	public float maxVelocity = 1;
@@ -203,13 +204,14 @@ public class Agent : MonoBehaviour {
 		p.z = -3;
 		v.z = -3;
 		s.z = -3;
-		Color moveColor = (flock.Count == 0) ? Color.green : Color.blue;
-		Lines.Make (ref velocityLine, moveColor, p, v, .1f, .1f);
-		Lines.Make (ref steeringLine, Color.red, v, s, .05f, .05f);
-		if(flock.Count > 0) {
-			Lines.MakeArc(ref flockCircle, Color.blue, transform.position, Vector3.forward, Vector3.right * flockRepelRadius, 360, 24, .1f, .1f);
+		if(showSteeringLines) {
+			Color moveColor = (flock.Count == 0) ? Color.green : Color.blue;
+			Lines.Make (ref velocityLine, moveColor, p, v, .1f, .1f);
+			Lines.Make (ref steeringLine, Color.red, v, s, .05f, .05f);
+			if(flock.Count > 0) {
+				Lines.MakeArc(ref flockCircle, Color.blue, transform.position, Vector3.forward, Vector3.right * flockRepelRadius, 360, 24, .1f, .1f);
+			}
 		}
-
 		for(int i = 0; i < attention.Count; ++i) {
 			float attentionLeft = attention[i].GetAttentionLeftAsPercent();
 			if(attentionLeft > 0) {

@@ -54,6 +54,7 @@ public class Proximity : MonoBehaviour {
 				if(!other.flock.Contains(self))
 					other.flock.Add (self);
 				other.flock = self.flock;
+				introducer.score++;
 				// doing this would be bad for memory...
 				// and we'll addeach other's friends too!
 //				if(other.flock.Count > 0)
