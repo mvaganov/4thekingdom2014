@@ -49,8 +49,18 @@ public class Proximity : MonoBehaviour {
 			Agent.Attention atHim = FindAttention(introducer, other);
 			if(atMe != null && atHim != null) {
 //				Debug.Log("adding to flocks");
-				self.flock.Add(other);
-				other.flock.Add (self);
+				if(!self.flock.Contains(other))
+					self.flock.Add(other);
+				if(!other.flock.Contains(self))
+					other.flock.Add (self);
+				other.flock = self.flock;
+				// doing this would be bad for memory...
+				// and we'll addeach other's friends too!
+//				if(other.flock.Count > 0)
+//					self.flock.Add (other.flock);
+//				if(self.flock.Count > 0)
+//					other.flock.Add (self.flock);
+
 //				other.renderer.material.color = Color.red;
 //				self.renderer.material.color = Color.red;
 			}
@@ -70,7 +80,7 @@ public class Proximity : MonoBehaviour {
 //					self.renderer.material.color = Color.cyan;
 			}
 			nearbyAgents.Add(a);
-			if(!self.userControlled) {
+			if(!self.userControlled && userInProximity) {
 				for(int i = 0; i < nearbyAgents.Count; ++i) {
 					IsBeingIntroducedBy(userInProximity, self, nearbyAgents[i]);
 				}
@@ -89,7 +99,7 @@ public class Proximity : MonoBehaviour {
 //				if(self.renderer.material.color != Color.red)
 //					self.renderer.material.color = Color.white;
 			}
-			if(!self.userControlled) {
+			if(!self.userControlled && userInProximity) {
 				for(int i = 0; i < nearbyAgents.Count; ++i) {
 					IsBeingIntroducedBy(userInProximity, self, nearbyAgents[i]);
 				}
