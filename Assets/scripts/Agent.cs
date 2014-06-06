@@ -3,7 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class Agent : MonoBehaviour {
-	public static bool showSteeringLines = false;
+	public static bool showSteeringLines = true;
+
 	public bool userControlled = false;
 
 	public Proximity prox;
@@ -12,16 +13,16 @@ public class Agent : MonoBehaviour {
 	public float maxSteering = 1;
 	public float maxVelocity = 1;
 
-	public Vector2 steering; // acceleration force
+	public Vector3 steering; // acceleration force
 
 	public GameObject needsDisplay;
 	bool mustShowNeeds = false;
 
 	public List<Agent> flock = new List<Agent>(); // TODO when agents meet, they add each other to the flock, and begin flocking behavior
 	public float flockRepelRadius = 2;
-	public Vector2 userTarget;
+	public Vector3 targetLocation;
 
-	private GameObject velocityLine, steeringLine, flockCircle;
+	private GameObject velocityLine, steeringLine, flockCircle, boundaryCircle, targetline;
 
 	public SpriteRenderer spriteRenderer;
 	public SpriteData spriteData;
@@ -127,7 +128,7 @@ public class Agent : MonoBehaviour {
 			int numCrowding = 1;
 			Vector3 groupCenter = transform.position;
 			Vector3 crowdingCenter = transform.position;
-			Vector2 averageSteering = steering;
+			Vector3 averageSteering = steering;
 			for (int i = 0; i < flock.Count; i++) {
 				Agent a = flock[i];
 				if (a != this) {
@@ -163,8 +164,8 @@ public class Agent : MonoBehaviour {
 			if(Input.GetMouseButtonDown(0)) {
 				UserClick();
 			}
-			Vector2 targetVelocity = userTarget - (Vector2)transform.position;
-			if(targetVelocity != Vector2.zero) {
+			Vector3 targetVelocity = targetLocation - transform.position;
+			if(targetVelocity != Vector3.zero) {
 				float movementAtThisMoment = steering.magnitude*Time.deltaTime;
 				float distanceFromTarget = targetVelocity.magnitude - movementAtThisMoment;
 				float speed = rigidbody2D.velocity.magnitude;
@@ -173,7 +174,7 @@ public class Agent : MonoBehaviour {
 					if(speed > maxSteering) {
 						targetVelocity = targetVelocity.normalized * (speed-maxSteering);
 					} else {
-						targetVelocity = Vector2.zero;
+						targetVelocity = Vector3.zero;
 					}
 				} else {
 					if(targetVelocity.magnitude > maxVelocity) {
@@ -185,13 +186,19 @@ public class Agent : MonoBehaviour {
 //				Vector2 requiredAcceleration = targetVelocity - rigidbody2D.velocity;
 //				requiredAcceleration.Normalize();
 //				steering = requiredAcceleration * maxSteering;
-				steering = targetVelocity - rigidbody2D.velocity;
+				steering = targetVelocity - (Vector3)rigidbody2D.velocity;
+				if(steering.magnitude > Time.deltaTime) {
+					steering.Normalize();
+					steering *= maxSteering;
+				} else {
+					steering = Vector3.zero;
+				}
 			} else {
-				steering = Vector2.zero;
+				steering = Vector3.zero;
 			}
 		}
 		// general steering behavior code
-		rigidbody2D.velocity = rigidbody2D.velocity + (steering * Time.deltaTime); // += won't work for properties
+		rigidbody2D.velocity = rigidbody2D.velocity + (Vector2)(steering * Time.deltaTime); // += won't work for properties
 		if(rigidbody2D.velocity != Vector2.zero) {
 			float currentSpeed = rigidbody2D.velocity.magnitude;
 			if(currentSpeed > maxVelocity) {
@@ -205,6 +212,8 @@ public class Agent : MonoBehaviour {
 		v.z = -3;
 		s.z = -3;
 		if(showSteeringLines) {
+			Lines.MakeArc(ref boundaryCircle, Color.blue, transform.position, Vector3.forward, Vector3.right * GetComponent<CircleCollider2D>().radius, 360, 24, .05f, .05f);
+			Lines.Make(ref targetline, Color.blue, transform.position, targetLocation, .01f, .01f);
 			Color moveColor = (flock.Count == 0) ? Color.green : Color.blue;
 			Lines.Make (ref velocityLine, moveColor, p, v, .1f, .1f);
 			Lines.Make (ref steeringLine, Color.red, v, s, .05f, .05f);
@@ -243,9 +252,9 @@ public class Agent : MonoBehaviour {
 
 	public void UserClick() {
 		Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-		userTarget.x = ray.origin.x; // if the camera angle ever changes, this code will break!
-		userTarget.y = ray.origin.y;
-		Collider2D[] hits = Physics2D.OverlapPointAll(userTarget);
+		targetLocation.x = ray.origin.x; // if the camera angle ever changes, this code will break!
+		targetLocation.y = ray.origin.y;
+		Collider2D[] hits = Physics2D.OverlapPointAll(targetLocation);
 		if(hits.Length > 0) {
 			for(int i = 0; i < hits.Length; ++i) {
 				Agent a = hits[i].GetComponent<Agent>();
@@ -257,7 +266,7 @@ public class Agent : MonoBehaviour {
 			}
 		}
 		ParticleSystem token = GameWorld.GetGlobal ().moveToken.GetComponent<ParticleSystem> ();
-		token.transform.position = userTarget;
+		token.transform.position = targetLocation;
 		token.Emit (2);
 	}
 
