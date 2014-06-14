@@ -8,12 +8,13 @@ public class Agent : MonoBehaviour {
 	public bool userControlled = false;
 
 	public Proximity prox;
-	public int score = 0;
+	public float score = 0;
 
 	public float maxSteering = 1;
 	public float maxVelocity = 1;
 
-	public Vector3 steering; // acceleration force
+	/// <summary>acceleration force</summary>
+	public Vector3 steering;
 
 	public GameObject needsDisplay;
 	bool mustShowNeeds = false;
@@ -118,9 +119,14 @@ public class Agent : MonoBehaviour {
 			wanderCooldown = wanderDelay;
 		}
 	}
+
 	GameObject flockArrow;
 	// Update is called once per frame
 	void Update () {
+
+		if(userControlled && Input.GetMouseButtonDown(0)) {
+			UserClick();
+		}
 		if(flock.Count > 0) {
 //			Debug.Log ("FLOCKING!");
 			// insert flock behavior here
@@ -161,40 +167,13 @@ public class Agent : MonoBehaviour {
 		} else if(!userControlled) {
 			WanderBehavior();
 		} else {
-			if(Input.GetMouseButtonDown(0)) {
-				UserClick();
-			}
-			Vector3 targetVelocity = targetLocation - transform.position;
-			if(targetVelocity != Vector3.zero) {
-				float movementAtThisMoment = steering.magnitude*Time.deltaTime;
-				float distanceFromTarget = targetVelocity.magnitude - movementAtThisMoment;
-				float speed = rigidbody2D.velocity.magnitude;
-				float brakeDistanceNeeded = (speed*speed)/(2*maxSteering);
-				if(distanceFromTarget <= brakeDistanceNeeded) {
-					if(speed > maxSteering) {
-						targetVelocity = targetVelocity.normalized * (speed-maxSteering);
-					} else {
-						targetVelocity = Vector3.zero;
-					}
-				} else {
-					if(targetVelocity.magnitude > maxVelocity) {
-						targetVelocity = targetVelocity.normalized* maxVelocity;
-					}
-				}
-//				targetVelocity.Normalize();
-//				targetVelocity *= maxSteering;
-//				Vector2 requiredAcceleration = targetVelocity - rigidbody2D.velocity;
-//				requiredAcceleration.Normalize();
-//				steering = requiredAcceleration * maxSteering;
-				steering = targetVelocity - (Vector3)rigidbody2D.velocity;
-				if(steering.magnitude > Time.deltaTime) {
-					steering.Normalize();
-					steering *= maxSteering;
-				} else {
-					steering = Vector3.zero;
+			steering = Steering.Arrive(transform.position, rigidbody2D.velocity, maxVelocity, maxSteering, targetLocation);
+			if(steering == Vector3.zero) {
+				if(rigidbody2D.velocity.sqrMagnitude < 0.5f) {
+					rigidbody2D.velocity = Vector3.zero;
 				}
 			} else {
-				steering = Vector3.zero;
+				steering = steering.normalized * maxSteering;
 			}
 		}
 		// general steering behavior code
@@ -205,6 +184,7 @@ public class Agent : MonoBehaviour {
 				rigidbody2D.velocity = rigidbody2D.velocity.normalized * maxVelocity;
 			}
 		}
+
 		Vector3 p = transform.position;
 		Vector3 v = p + (Vector3)rigidbody2D.velocity;
 		Vector3 s = v + (Vector3)steering;

@@ -168,4 +168,12 @@ public class Lines : MonoBehaviour {
 		return Make (ref lineObject, color, points, pointCount, startSize,
 		             endSize);
 	}
+
+	public static LineRenderer MakeCircle(ref GameObject lineObject, Color color,
+	                                      Vector3 centerPosition, float radius, 
+	                                      float linesize) {
+		return Lines.MakeArc(ref lineObject, color, centerPosition, 
+		                     Vector3.forward, Vector3.right * radius, 360, 24, 
+		                     linesize, linesize);
+	}
 }
